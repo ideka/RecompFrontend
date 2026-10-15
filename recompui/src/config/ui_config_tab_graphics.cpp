@@ -215,6 +215,8 @@ namespace recompui {
             get_graphics_config().set_option_value(graphics::options::wm_option, static_cast<uint32_t>(new_wm));
             get_graphics_config().apply_option_value(graphics::options::wm_option);
             apply_graphics_config();
+            // Persist the choice: otherwise the next launch restores whatever was last applied in the menu.
+            get_graphics_config().save_config();
         }
 
         recomp::config::Config &create_graphics_tab(const std::string &name) {
