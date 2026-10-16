@@ -1,3 +1,4 @@
+#include <atomic>
 #include "recompinput/recompinput.h"
 #include "recompinput/input_binding.h"
 #include "recompinput/input_events.h"
@@ -246,6 +247,12 @@ bool sdl_event_filter(void* userdata, SDL_Event* event) {
     return false;
 }
 
+static std::atomic<bool> cursor_lock_override = false;
+
+void set_cursor_lock_override(bool locked) {
+    cursor_lock_override = locked;
+}
+
 void handle_events() {
     SDL_Event cur_event;
     static bool started = false;
@@ -256,7 +263,7 @@ void handle_events() {
         bool has_mouse_sensitivity = recompui::config::general::has_mouse_sensitivity_option();
 
         // Lock the cursor if all three conditions are true: mouse aiming is enabled, game input is not disabled, and the game has been started. 
-        bool cursor_locked = (has_mouse_sensitivity && recompui::config::general::get_mouse_sensitivity() != 0) && !recompinput::game_input_disabled() && ultramodern::is_game_started();
+        bool cursor_locked = ((has_mouse_sensitivity && recompui::config::general::get_mouse_sensitivity() != 0) || cursor_lock_override) && !recompinput::game_input_disabled() && ultramodern::is_game_started();
 
         // Hide the cursor based on its enable state, but override visibility to false if the cursor is locked.
         bool cursor_visible = recompui::get_cursor_visible();

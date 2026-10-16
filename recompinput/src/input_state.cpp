@@ -313,6 +313,12 @@ void recompinput::get_mouse_deltas(float* x, float* y) {
     *y = cur_mouse_delta[1] * sensitivity;
 }
 
+void recompinput::get_raw_mouse_deltas(float* x, float* y) {
+    std::array<float, 2> cur_mouse_delta = InputState.mouse_delta;
+    *x = cur_mouse_delta[0];
+    *y = cur_mouse_delta[1];
+}
+
 void recompinput::apply_joystick_deadzone(float x_in, float y_in, float* x_out, float* y_out) {
     float joystick_deadzone = (float)recompui::config::general::get_joystick_deadzone() / 100.0f;
 

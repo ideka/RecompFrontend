@@ -37,6 +37,10 @@ namespace recompinput {
     bool get_input_digital(int controller_num, const std::span<const InputField> fields);
     void get_gyro_deltas(int controller_num, float* x, float* y);
     void get_mouse_deltas(float* x, float* y);
+    // The mouse movement since the last input poll, without the mouse sensitivity applied.
+    void get_raw_mouse_deltas(float* x, float* y);
+    // Locks (captures) the cursor while the game runs regardless of the mouse aiming option, e.g. for debug tools.
+    void set_cursor_lock_override(bool locked);
     void get_right_analog(int controller_num, float* x, float* y);
     void apply_joystick_deadzone(float x_in, float y_in, float* x_out, float* y_out);
     void set_right_analog_suppressed(bool suppressed);
