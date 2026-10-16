@@ -37,6 +37,7 @@ namespace recompui {
             std::unique_ptr<RT64::Application> app;
             std::unordered_set<std::string> enabled_texture_packs;
             std::unordered_set<std::string> secondary_disabled_texture_packs;
+            std::filesystem::path base_texture_pack;
             uint32_t last_refresh_rate = 0;
 
             void check_texture_pack_actions();
@@ -49,6 +50,8 @@ namespace recompui {
         bool RT64SamplePositionsSupported();
         bool RT64HighPrecisionFBEnabled();
 
+        // A texture pack directory provided by the game itself, loaded below all mod texture packs (empty: none).
+        void set_base_texture_pack(const std::filesystem::path& path);
         void trigger_texture_pack_update();
         void enable_texture_pack(const recomp::mods::ModContext& context, const recomp::mods::ModHandle& mod);
         void disable_texture_pack(const recomp::mods::ModHandle& mod);

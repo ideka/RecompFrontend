@@ -43,7 +43,11 @@ struct TexturePackSecondaryDisableAction {
 struct TexturePackUpdateAction {
 };
 
-using TexturePackAction = std::variant<TexturePackEnableAction, TexturePackDisableAction, TexturePackSecondaryEnableAction, TexturePackSecondaryDisableAction, TexturePackUpdateAction>;
+struct TexturePackBaseAction {
+    std::filesystem::path path;
+};
+
+using TexturePackAction = std::variant<TexturePackEnableAction, TexturePackDisableAction, TexturePackSecondaryEnableAction, TexturePackSecondaryDisableAction, TexturePackUpdateAction, TexturePackBaseAction>;
 
 static moodycamel::ConcurrentQueue<TexturePackAction> texture_pack_action_queue;
 
@@ -442,6 +446,10 @@ void renderer::RT64Context::check_texture_pack_actions() {
             },
             [&](TexturePackUpdateAction &) {
                 packs_changed = true;
+            },
+            [&](TexturePackBaseAction &to_set) {
+                base_texture_pack = to_set.path;
+                packs_changed = true;
             }
         }, cur_action);
     }
@@ -468,6 +476,11 @@ void renderer::RT64Context::check_texture_pack_actions() {
         replacement_directories.reserve(enabled_texture_packs.size());
         for (const std::string &mod_id : sorted_texture_packs) {
             replacement_directories.emplace_back(RT64::ReplacementDirectory(recomp::mods::get_mod_filename(mod_id)));
+        }
+
+        // The game's own pack comes last, so mod texture packs override it.
+        if (!base_texture_pack.empty()) {
+            replacement_directories.emplace_back(RT64::ReplacementDirectory(base_texture_pack));
         }
 
         if (!replacement_directories.empty()) {
@@ -504,6 +517,10 @@ bool renderer::RT64SamplePositionsSupported() {
 
 bool renderer::RT64HighPrecisionFBEnabled() {
     return high_precision_fb_enabled;
+}
+
+void renderer::set_base_texture_pack(const std::filesystem::path& path) {
+    texture_pack_action_queue.enqueue(TexturePackBaseAction{path});
 }
 
 void renderer::trigger_texture_pack_update() {
