@@ -414,6 +414,33 @@ namespace recompinput {
         return true;
     }
 
+    float profiles::get_n64_button_analog(int player_index, uint16_t button_mask) {
+        if (recompinput::game_input_disabled()) {
+            return 0.0f;
+        }
+
+        int profile_index_cont = players::is_single_player_mode() ? profiles::get_sp_controller_profile_index() : players_input_profile_indices[player_index].first;
+        int profile_index_kb = players::is_single_player_mode() ? profiles::get_sp_keyboard_profile_index() : players_input_profile_indices[player_index].second;
+
+        // The most pressed of the buttons in the mask, each as the sum of its bindings across the controller and keyboard profiles.
+        float ret = 0.0f;
+        for (size_t i = 0; i < n64_button_values.size(); i++) {
+            if ((n64_button_values[i] & button_mask) == 0) {
+                continue;
+            }
+
+            float value = 0.0f;
+            for (int profile_index : { profile_index_cont, profile_index_kb }) {
+                if (profile_index >= 0) {
+                    value += recompinput::get_input_analog(player_index, input_profiles[profile_index].mappings[(size_t)(GameInput::N64_BUTTON_START) + i]);
+                }
+            }
+            ret = std::max(ret, std::min(value, 1.0f));
+        }
+
+        return ret;
+    }
+
     static void add_input_bindings(json& out, int profile_index, GameInput input) {
         const std::string& input_name = recompinput::get_game_input_enum_name(input);
         json& out_array = out[input_name];

@@ -62,6 +62,8 @@ namespace recompinput {
         int get_or_create_mp_keyboard_profile_index(int player_index);
         std::string get_string_from_controller_guid(ControllerGUID guid);
         bool get_n64_input(int player_index, uint16_t* buttons_out, float* x_out, float* y_out);
+        // How far the N64 buttons in the mask are pressed (0 to 1): the analog value of their bindings, e.g. a trigger.
+        float get_n64_button_analog(int player_index, uint16_t button_mask);
 
         bool load_controls_config(const std::filesystem::path& path);
         bool save_controls_config(const std::filesystem::path& path);
